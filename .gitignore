@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Python virtualenv
+venv/
+env/
+ENV/
+.venv/
+
+# Editor configs
+.vscode/
+.idea/
+*.code-workspace
+
+# Logs and temp
+*.log
+*.tmp
+*.bak
+
+# Test output
+htmlcov/
+coverage.xml
+.cache/
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Docker-related
+*.pid
+docker-compose.override.yml
+.dockerignore
