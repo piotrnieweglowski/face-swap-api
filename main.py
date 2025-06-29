@@ -2,10 +2,20 @@ import cv2
 import os
 import io
 import random
+import time
 import numpy as np 
+
 from PIL import Image
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Request, HTTPException
 from fastapi.responses import StreamingResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+
+MAX_FILE_SIZE = 1 * 1024 * 1024 # 1 MB
+RATE_LIMIT = 10 # requests per hour per IP
+rate_limit_window = 60 * 60 # 1 hour
+
+ip_requests = {}  # {ip: [timestamps]}
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
@@ -21,10 +31,34 @@ cat_faces = [
 if not cat_faces:
     raise RuntimeError("No cat face images found.")
 
+@app.middleware("http")
+async def rate_limit_and_size_guard(request: Request, call_next):
+    client_ip = request.client.host
+
+    now = time.time()
+    timestamps = ip_requests.get(client_ip, [])
+
+    # Drop requests older than window
+    timestamps = [ts for ts in timestamps if now - ts < rate_limit_window]
+    if len(timestamps) >= RATE_LIMIT:
+        return Response("Rate limit exceeded", status_code=429)
+    timestamps.append(now)
+    ip_requests[client_ip] = timestamps
+
+    
+    if request.url.path == "/swap-faces" and request.method == "POST":
+        content_length = request.headers.get("content-length")
+        if content_length and int(content_length) > MAX_FILE_SIZE:
+            return Response("File too large", status_code=413)
+
+    return await call_next(request)
 
 @app.post("/swap-faces")
 async def swap_faces(file: UploadFile = File(...)):
     contents = await file.read()
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="File too large")
+    
     nparr = np.frombuffer(contents, np.uint8)
     cv_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
