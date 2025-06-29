@@ -12,7 +12,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
 MAX_FILE_SIZE = 1 * 1024 * 1024 # 1 MB
-RATE_LIMIT = 10 # requests per hour per IP
+RATE_LIMIT = 2 # requests per hour per IP
 rate_limit_window = 60 * 60 # 1 hour
 
 ip_requests = {}  # {ip: [timestamps]}
@@ -31,9 +31,15 @@ cat_faces = [
 if not cat_faces:
     raise RuntimeError("No cat face images found.")
 
+def get_client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host or "unknown"
+
 @app.middleware("http")
 async def rate_limit_and_size_guard(request: Request, call_next):
-    client_ip = request.client.host
+    client_ip = get_client_ip(request)
 
     now = time.time()
     timestamps = ip_requests.get(client_ip, [])
