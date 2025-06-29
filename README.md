@@ -10,7 +10,7 @@ This API accepts a photo of one or more people and replaces their faces with ran
 
 ## 🔗 Live Demo
 
-Try it now: [https:/face-swap-api.up.railway.app/swap-faces](https://face-swap-api.up.railway.app/swap-faces)
+Try it now: [https://face-swap-api.up.railway.app/swap-faces](https://face-swap-api.up.railway.app/swap-faces)
 
 > Upload a photo, get cat faces back — see example request below.
 
@@ -78,7 +78,3 @@ Requests that exceed these limits will be rejected with appropriate error messag
 ## 🌍 Coming Soon
 
 Once the main page of the **Weird API Challenge** is published, this README will be updated with a link.
-
-## 🙏 Contributing
-
-Feel free to fork, remix, or catify it further. Want to add dog faces? Goat overlays? Go wild.

@@ -12,7 +12,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
 MAX_FILE_SIZE = 1 * 1024 * 1024 # 1 MB
-RATE_LIMIT = 2 # requests per hour per IP
+RATE_LIMIT = 10 # requests per hour per IP
 rate_limit_window = 60 * 60 # 1 hour
 
 ip_requests = {}  # {ip: [timestamps]}
@@ -51,7 +51,6 @@ async def rate_limit_and_size_guard(request: Request, call_next):
     timestamps.append(now)
     ip_requests[client_ip] = timestamps
 
-    
     if request.url.path == "/swap-faces" and request.method == "POST":
         content_length = request.headers.get("content-length")
         if content_length and int(content_length) > MAX_FILE_SIZE:
